@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -16,25 +17,27 @@ import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 
-@UseInterceptors(
-  FileInterceptor('logo', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const randomName = Array(12)
-          .fill(null)
-          .map(() => Math.round(Math.random() * 16).toString())
-          .join('');
 
-        return cb(null, `${randomName}${extname(file.originalname)}`);
-      },
-    }),
-  }),
-)
 @Controller('api/companies')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
+
+  @UseInterceptors(
+    FileInterceptor('logo', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const randomName = Array(12)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString())
+            .join('');
+  
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   @Post()
   create(
     @UploadedFile() file: Express.Multer.File,
@@ -62,4 +65,5 @@ export class CompanyController {
   remove(@Param('id') _id: string) {
     return this.companyService.remove(_id);
   }
+
 }
