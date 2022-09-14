@@ -35,7 +35,10 @@ export class CompanyService {
       // save company in the DB
       await newCompany.save();
 
-      return newCompany;
+      return {
+        success: true,
+        company: newCompany,
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -46,7 +49,10 @@ export class CompanyService {
     try {
       const companies = await this.companyModel.find();
 
-      return companies;
+      return {
+        success: true,
+        companies,
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -56,7 +62,10 @@ export class CompanyService {
   async getCompany(id: string) {
     try {
       const company = await this.companyModel.findOne({ _id: id });
-      return company;
+      return {
+        success: true,
+        company,
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -76,7 +85,11 @@ export class CompanyService {
         _id,
         editCompany,
       );
-      return updatedCompany;
+      return {
+        success: true,
+        message: 'company updated successfully',
+        company: updatedCompany,
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -87,7 +100,10 @@ export class CompanyService {
     try {
       await this.companyModel.deleteOne({ _id });
 
-      return 'Company deleted successfully';
+      return {
+        success: true,
+        message: 'Company deleted successfully',
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
