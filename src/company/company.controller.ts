@@ -19,7 +19,7 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 @UseInterceptors(
   FileInterceptor('logo', {
     storage: diskStorage({
-      destination: './uploads/logos',
+      destination: './uploads',
       filename: (req, file, cb) => {
         const randomName = Array(12)
           .fill(null)
@@ -48,14 +48,14 @@ export class CompanyController {
     return this.companyService.getCompanies();
   }
 
-  @Get(":id")
-  getCompany(@Param("id") id: string) {
+  @Get(':id')
+  getCompany(@Param('id') id: string) {
     return this.companyService.getCompany(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
-    return this.companyService.updateCompany(id, updateCompanyDto);
+  update(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Body() updateCompanyDto: UpdateCompanyDto) {
+    return this.companyService.updateCompany(id, file, updateCompanyDto);
   }
 
   @Delete(':id')

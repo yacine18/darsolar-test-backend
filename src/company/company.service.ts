@@ -35,10 +35,7 @@ export class CompanyService {
       // save company in the DB
       await newCompany.save();
 
-      return {
-        success: true,
-        company: newCompany,
-      };
+      return newCompany;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -49,10 +46,7 @@ export class CompanyService {
     try {
       const companies = await this.companyModel.find();
 
-      return {
-        success: true,
-        companies,
-      };
+      return companies;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -62,10 +56,7 @@ export class CompanyService {
   async getCompany(id: string) {
     try {
       const company = await this.companyModel.findOne({ _id: id });
-      return {
-        success: true,
-        company,
-      };
+      return company;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -73,20 +64,19 @@ export class CompanyService {
 
   // update a company in DB
   async updateCompany(
-    _id:string,
+    _id: string,
+    file: Express.Multer.File,
     updateCompanyDto: UpdateCompanyDto,
   ) {
     try {
+      const editCompany = new this.companyModel(updateCompanyDto);
+
+      editCompany.logo = file.filename;
       const updatedCompany = await this.companyModel.findByIdAndUpdate(
         _id,
-        updateCompanyDto,
-        {new: true}
+        editCompany,
       );
-      return {
-        success: true,
-        message: 'Company updated successfully!',
-        company: updatedCompany,
-      };
+      return updatedCompany;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -97,10 +87,7 @@ export class CompanyService {
     try {
       await this.companyModel.deleteOne({ _id });
 
-      return {
-        success: true,
-        message: 'Company deleted successfully',
-      };
+      return 'Company deleted successfully';
     } catch (error) {
       throw new BadRequestException(error.message);
     }
