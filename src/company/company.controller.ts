@@ -40,7 +40,6 @@ export class CompanyController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createCompanyDto: CreateCompanyDto,
   ) {
-    console.log(file)
     return this.companyService.createCompany(file, createCompanyDto);
   }
 
