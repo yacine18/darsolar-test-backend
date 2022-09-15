@@ -3,7 +3,7 @@ import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Company, CompanyDocument } from './schema/company.schema';
-import mongoose, { Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
