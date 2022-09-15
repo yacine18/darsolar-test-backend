@@ -3,7 +3,7 @@ import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Company, CompanyDocument } from './schema/company.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class CompanyService {
         throw new BadRequestException('Name should not be empty.');
       }
 
-      // check if the logo fields is not empty
+      // check if the logo field is not empty
       if (!file) {
         throw new BadRequestException('Logo should not be empty.');
       }
@@ -61,7 +61,7 @@ export class CompanyService {
   // retrieve company by ID from DB
   async getCompany(id: string) {
     try {
-      const company = await this.companyModel.findOne({ _id: id });
+      const company = await this.companyModel.findOne({ id });
       return {
         success: true,
         company,
@@ -73,23 +73,45 @@ export class CompanyService {
 
   // update a company in DB
   async updateCompany(
-    _id: string,
+    id: string,
     file: Express.Multer.File,
     updateCompanyDto: UpdateCompanyDto,
   ) {
     try {
-      const editCompany = new this.companyModel(updateCompanyDto);
+      const company = await this.companyModel.findOne({ id });
 
-      editCompany.logo = file.filename;
-      const updatedCompany = await this.companyModel.findByIdAndUpdate(
-        _id,
-        editCompany,
-      );
-      return {
-        success: true,
-        message: 'company updated successfully',
-        company: updatedCompany,
-      };
+      // check if the company we wan to update is exists in DB
+      if (company) {
+        // check if name field not empty
+        if (updateCompanyDto.name === '') {
+          throw new BadRequestException('Name should not be empty.');
+        }
+
+        // check if logo field not empty
+        if (!file) {
+          throw new BadRequestException('Logo should not be empty.');
+        }
+
+        // update the company in DB
+        await this.companyModel.updateOne(
+          { _id: company._id },
+          {
+            $set: {
+              name: updateCompanyDto.name,
+              logo: file.filename,
+              phone: updateCompanyDto.phone,
+              city: updateCompanyDto.city,
+            },
+          },
+        );
+
+        return {
+          success: true,
+          message: 'Company updated successfully',
+        };
+      } else {
+        throw new BadRequestException('Company Not Found!.');
+      }
     } catch (error) {
       throw new BadRequestException(error.message);
     }

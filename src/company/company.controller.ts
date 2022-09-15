@@ -8,7 +8,6 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
-  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -17,11 +16,9 @@ import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 
-
 @Controller('api/companies')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
-
 
   @UseInterceptors(
     FileInterceptor('logo', {
@@ -32,7 +29,7 @@ export class CompanyController {
             .fill(null)
             .map(() => Math.round(Math.random() * 16).toString())
             .join('');
-  
+
           return cb(null, `${randomName}${extname(file.originalname)}`);
         },
       }),
@@ -43,6 +40,7 @@ export class CompanyController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createCompanyDto: CreateCompanyDto,
   ) {
+    console.log(file)
     return this.companyService.createCompany(file, createCompanyDto);
   }
 
@@ -56,8 +54,27 @@ export class CompanyController {
     return this.companyService.getCompany(id);
   }
 
+  @UseInterceptors(
+    FileInterceptor('logo', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const randomName = Array(12)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString())
+            .join('');
+
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   @Patch(':id')
-  update(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Body() updateCompanyDto: UpdateCompanyDto) {
+  update(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: string,
+    @Body() updateCompanyDto: UpdateCompanyDto,
+  ) {
     return this.companyService.updateCompany(id, file, updateCompanyDto);
   }
 
@@ -65,5 +82,4 @@ export class CompanyController {
   remove(@Param('id') _id: string) {
     return this.companyService.remove(_id);
   }
-
 }
